@@ -1,0 +1,83 @@
+
+---
+# Check version installed
+- name: Current istioctl version
+  ansible.builtin.shell: 
+    cmd: istioctl version --remote=false
+  register: cur_version
+  ignore_errors: true
+
+- name: Print version
+  debug: msg="{{ cur_version.stdout }}"
+
+- name: Print ISTIO_FORCE_INSTALL
+  debug: msg="{{ ISTIO_FORCE_INSTALL }}"
+
+- name: Set install
+  set_fact:
+    install:  "{{ cur_version.stdout != ISTIO_VERSION or ISTIO_FORCE_INSTALL }}"
+
+- name: Print Install var
+  debug: msg="{{ install }}"
+
+- block:
+  - name: Istio is already installed. Nothing to be done
+    debug: msg="{{ install }}"
+
+  when: not install
+
+- block:
+
+  - name: Print use_cached
+    debug: msg="{{ use_cached }}"
+
+  - name: Delete Istio file path
+    ansible.builtin.file:
+      path: "{{ istio_ver_files_path }}"
+      state: absent
+    when: not use_cached
+
+  - name: Get istio files
+    ansible.builtin.shell: 
+      cmd: curl -L https://istio.io/downloadIstio | ISTIO_VERSION="{{ ISTIO_VERSION }}" sh -
+      chdir: "{{ istio_tools_path }}"
+    when: not use_cached
+
+  - name: Simbolic link for ISTIO PATH
+    ansible.builtin.file:
+      src: "{{ istio_ver_files_path }}"
+      dest: "{{ istio_cur_files_path }}"
+      state: link
+
+  - name: Set env variable for Istio Install
+    lineinfile:
+      dest: "~/.bashrc"
+      state: present
+      regexp: "^ISTIO_FLD="
+      line: "ISTIO_FLD={{ istio_cur_files_path }}"
+
+  - name: Set istioctl_src
+    ansible.builtin.shell: 
+      cmd: "ls {{ istio_cur_files_path }}/bin/istioctl"
+    register: istioctl_src
+    ignore_errors: true
+
+
+# completion
+  - name: Set Istioctl autocompletion
+    lineinfile:
+      dest: "~/.bashrc"
+      state: present
+      regexp: "ˆsource {{ istio_cur_files_path }}/tools/istioctl.bash"
+      line: "source {{ istio_cur_files_path }}/tools/istioctl.bash"
+
+# link to exec
+  - name: Simbolic link for istioctl
+    ansible.builtin.file:
+      src: "{{ istioctl_src.stdout }}"
+      dest:  "{{ istioctl_path }}"
+      state: link
+    become: True
+
+  when: install
+

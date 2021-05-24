@@ -1,0 +1,13 @@
+---
+# datasource=github-tags depName=istio/istio versioning=semver
+ISTIO_VERSION: '1.9.2'
+
+ISTIO_FORCE_INSTALL: False
+
+istio_tools_path: "~/k8s/tools/istio"
+istio_ver_files_path: "~/k8s/tools/istio/istio-{{ ISTIO_VERSION }}"
+istio_cur_files_path: "~/k8s/tools/istio/current"
+istioctl_path: "/usr/local/bin/istioctl"
+
+use_cached: True
+...
