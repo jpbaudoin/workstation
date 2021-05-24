@@ -1,0 +1,12 @@
+{
+
+    "regexManagers": [
+      {
+        "fileMatch": ["defaults/main.yml"],
+        "matchStringsStrategy": "any",
+        "matchStrings": [
+          "# datasource=(?<datasource>.*?) depName=(?<depName>.*?) versioning=(?<versioning>.*?)?\\s[A-Z]+_VERSION: (?<currentValue>.*)?\\s"
+        ]
+      }
+    ]
+  }
