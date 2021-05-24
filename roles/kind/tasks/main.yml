@@ -1,0 +1,44 @@
+
+---
+# Check version installed
+- name: Current version
+  ansible.builtin.shell: 
+    cmd: kind version | awk '{print $2}'
+  register: cur_version
+  ignore_errors: true
+
+- name: Print version
+  debug: msg="{{ cur_version.stdout }}"
+
+- name: Set install
+  set_fact:
+    install:  "{{ cur_version.stdout != KIND_VERSION or KIND_FORCE_INSTALL }}"
+
+- name: Print Install var
+  debug: msg="{{ install }}"
+
+- block:
+  - name: ""
+    debug: msg="{{ PKG }} is already installed. Nothing to be done"
+  when: not install
+
+- block:
+  - name:         "Ensure {{ PKG }} is installed"
+    get_url:
+      url:        "https://kind.sigs.k8s.io/dl/{{ KIND_VERSION }}/kind-linux-amd64"
+      dest:       "{{ kind_path }}"
+      force: yes
+      mode:       "0755"
+    become: True
+
+# completion
+  - name: "Set {{ PKG }} autocompletion"
+    lineinfile:
+      dest: "~/.bashrc"
+      state: present
+      regexp: "^source <(kind completion bash)"
+      line: "source <(kind completion bash)"
+
+
+  when: install
+
