@@ -1,0 +1,97 @@
+
+---
+# Check version installed
+- name: "Current {{ PKG }} version"
+  ansible.builtin.shell: 
+    cmd: helm version --template={{ '{{' }}.Version{{ '}}' }}
+  register: cur_version
+  ignore_errors: true
+
+- name: Print version
+  debug: msg="{{ cur_version.stdout }}"
+
+- name: Print HELM_FORCE_INSTALL
+  debug: msg="{{ HELM_FORCE_INSTALL }}"
+
+- name: Set install
+  set_fact:
+    install:  "{{ cur_version.stdout != HELM_VERSION or HELM_FORCE_INSTALL }}"
+
+- name: Print Install var
+  debug: msg="{{ install }}"
+
+- block:
+  - name: ""
+    debug: msg="{{ PKG }} is already installed. Nothing to be done"
+  when: not install
+
+- block:
+
+  - name: Print HELM_USE_CACHED
+    debug: msg="{{ HELM_USE_CACHED }}"
+
+  - name: Delete {{ PKG }} file path
+    ansible.builtin.file:
+      path: "{{ HELM_VER_FILES_PATH }}"
+      state: absent
+    when: not HELM_USE_CACHED
+
+  - name: Recreate {{ PKG }} file path
+    ansible.builtin.file:
+      path: "{{ HELM_VER_FILES_PATH }}"
+      state: directory
+    when: not HELM_USE_CACHED
+
+  - name:         "Get {{ PKG }} archive"
+    get_url:
+      url:        https://get.helm.sh/{{ HELM_PKG }}
+      dest:       "{{ HELM_TOOLS_PATH }}/{{ HELM_PKG }}"
+      force: "{{ HELM_FORCE_INSTALL }}"
+      mode:       "0644"
+    when: not HELM_USE_CACHED
+
+  - name:         Unarchive {{ PKG }} archive into version path
+    unarchive:
+      src:        "{{ HELM_TOOLS_PATH }}/{{ HELM_PKG }}"
+      dest:       "{{ HELM_VER_FILES_PATH }}"
+      extra_opts:
+      - --wildcards
+      - '*/helm'      
+      remote_src: true
+      mode:       "0755"
+    when: not HELM_USE_CACHED
+
+
+  - name: Simbolic link for {{ PKG }} CURRENT VERSION PATH
+    ansible.builtin.file:
+      src: "{{ HELM_VER_FILES_PATH }}"
+      dest: "{{ HELM_CUR_FILES_PATH }}"
+      force: yes
+      state: link
+
+  - name: Set {{ PKG }} bin location
+    ansible.builtin.shell: 
+      cmd: "ls {{ HELM_CUR_FILES_PATH }}/linux-amd64/helm"
+    register: helm_src
+    ignore_errors: true
+
+
+# completion
+  - name: Set {{ PKG }} autocompletion
+    lineinfile:
+      dest: "~/.bashrc"
+      state: present
+      regexp: "^source <(helm completion bash)"
+      line: "source <(helm completion bash)"
+
+# link to exec
+  - name: "Simbolic link for {{ PKG }}"
+    ansible.builtin.file:
+      src: "{{ helm_src.stdout }}"
+      dest:  "{{ HELM_PATH }}"
+      state: link
+      force: yes
+    become: True
+
+  when: install
+

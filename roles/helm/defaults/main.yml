@@ -1,0 +1,17 @@
+---
+# datasource=github-tags depName=helm/helm versioning=semver
+HELM_VERSION: v3.5.3
+
+HELM_FORCE_INSTALL: False
+
+PKG: 'Helm'
+
+HELM_TOOLS_PATH: "~/k8s/tools/helm"
+HELM_PKG: "helm-{{ HELM_VERSION }}-linux-amd64.tar.gz"
+HELM_VER_FILES_PATH: "~/k8s/tools/helm/{{ HELM_VERSION }}"
+HELM_CUR_FILES_PATH: "~/k8s/tools/helm/current"
+
+HELM_PATH: "/usr/local/bin/helm"
+
+HELM_USE_CACHED: False
+...
