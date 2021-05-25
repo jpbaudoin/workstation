@@ -1,0 +1,43 @@
+
+---
+# Check version installed
+- name: Current version
+  ansible.builtin.shell: 
+    cmd: kubectl version --client --short | awk '{print $3}'
+  register: cur_version
+  ignore_errors: true
+
+- name: Print version
+  debug: msg="{{ cur_version.stdout }}"
+
+- name: Set install
+  set_fact:
+    install:  "{{ cur_version.stdout != KUBECTL_VERSION or KUBECTL_FORCE_INSTALL }}"
+
+- name: Print Install var
+  debug: msg="{{ install }}"
+
+- block:
+  - name: ""
+    debug: msg="{{ PKG }} is already installed. Nothing to be done"
+  when: not install
+
+- block:
+  - name:         "Ensure {{ PKG }} is installed"
+    get_url:
+      url:        "https://storage.googleapis.com/kubernetes-release/release/{{ KUBECTL_VERSION }}/bin/linux/amd64/kubectl"
+      dest:       "{{ KUBECTL_PATH }}"
+      force: yes
+      mode:       "0755"
+    become: True
+
+# completion
+  - name: "Set {{ PKG }} autocompletion"
+    lineinfile:
+      dest: "~/.bashrc"
+      state: present
+      regexp: "^source <(kind completion bash)"
+      line: "source <(kind completion bash)"
+
+  when: install
+

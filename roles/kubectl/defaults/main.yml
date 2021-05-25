@@ -1,0 +1,10 @@
+---
+# datasource=github-tags depName=kubernetes/kubernetes versioning=semver
+KUBECTL_VERSION: v1.19.4
+
+KUBECTL_FORCE_INSTALL: False
+
+KUBECTL_PATH: "/usr/local/bin/kubectl"
+
+PKG: Kubectl
+...
