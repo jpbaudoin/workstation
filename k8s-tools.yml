@@ -1,0 +1,10 @@
+---
+  - name: "Testing roles"
+    hosts: localhost
+    connection: local 
+
+    roles:
+     - { role: helm }
+     - { role: istio }
+     - { role: kind }
+     - { role: kubectl }
