@@ -1,6 +1,6 @@
 ---
 # datasource=github-tags depName=istio/istio versioning=semver
-ISTIO_VERSION: 1.10.3
+ISTIO_VERSION: 1.12.2
 
 ISTIO_FORCE_INSTALL: False
 
