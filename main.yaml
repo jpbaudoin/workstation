@@ -1,0 +1,16 @@
+---
+- hosts: all
+
+  roles:
+    # - role: elliotweiser.osx-command-line-tools
+    - role: helm
+      tags: ['helm', 'all']
+
+    - role: istio
+      tags: ['istio', 'all']
+
+    - role: kind
+      tags: ['kind', 'all']
+
+    - role: kubectl
+      tags: ['kubectl', 'all']
