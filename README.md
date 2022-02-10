@@ -9,6 +9,22 @@ We are installing the following tools using binaries for Linux systems:
 - helm
 - kind
 
+To execute the install process:
+ansible-playbook main.yaml -K --tags {tool's tags}
+
+To install helm and kind run:
+```ansible-playbook main.yaml -K --tags helm,kind``` 
+
+Valid application tags are:
+- kubectl
+- istio
+- helm
+- kind
+
+To install all applications, use the tag 'all':
+```ansible-playbook main.yaml -K --tags all``` 
+
+# Installation process requirements
 The installation process shall:
 - Do nothing if the current version is the same as the new one
 - Force install if required
