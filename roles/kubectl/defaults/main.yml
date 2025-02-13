@@ -1,6 +1,6 @@
 ---
 # datasource=github-tags depName=kubernetes/kubernetes versioning=semver
-KUBECTL_VERSION: v1.25.0
+KUBECTL_VERSION: v1.32.2
 
 KUBECTL_FORCE_INSTALL: False
 
