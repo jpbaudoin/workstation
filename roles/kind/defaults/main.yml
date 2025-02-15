@@ -1,6 +1,6 @@
 ---
 # datasource=github-tags depName=kubernetes-sigs/kind versioning=semver
-KIND_VERSION: v0.15.0
+KIND_VERSION: v0.27.0
 
 KIND_FORCE_INSTALL: False
 
